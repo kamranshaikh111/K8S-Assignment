@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: submit-replica-set
+  labels:
+    app: submit-pod-set
+    tier: submit
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      tier: submit
+  template:
+    metadata:
+      labels:
+        tier: submit
+    spec:
+      containers:
+      - name: dashborad-pod
+        image: kamranshaikh111/submit:v1
