@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node3-api-deployment
+  labels:
+    app: node3
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: node3
+  template:
+    metadata:
+      labels:
+        app: node3
+    spec:
+      containers:
+        - name: node3-pod
+          image: kamranshaikh111/node3:v1
+          ports: 
+          - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node3-api
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: node3
+  type: ClusterIP
+

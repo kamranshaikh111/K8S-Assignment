@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: node1-web-deployment
+  labels:
+    app: node-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: node-web
+  template:
+    metadata:
+      labels:
+        app: node-web
+    spec:
+      containers:
+        - name: web-node-pod
+          image: kamranshaikh111/node-web:v1
+          ports: 
+          - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: node1-web
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: node-web
+  type: ClusterIP
