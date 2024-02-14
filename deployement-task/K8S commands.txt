@@ -1,0 +1,215 @@
+-------------------------------------------------------------------------------------------------------------------
+root@DESKTOP-Q1VPUEC:submit# kubectl apply -f pod.yaml
+pod/submit-pod created
+root@DESKTOP-Q1VPUEC:submit# kubectl get pods
+NAME         READY   STATUS    RESTARTS   AGE
+submit-pod   1/1     Running   0          31s
+root@DESKTOP-Q1VPUEC:submit# kubectl apply -f replication_ctrl.yaml
+replicationcontroller/submit-repl-ctrl created
+root@DESKTOP-Q1VPUEC:submit# kubectl get pods
+NAME                     READY   STATUS    RESTARTS   AGE
+submit-pod               1/1     Running   0          58s
+submit-repl-ctrl-bdtbw   1/1     Running   0          4s
+submit-repl-ctrl-glrhw   1/1     Running   0          4s
+root@DESKTOP-Q1VPUEC:submit# kubectl apply -f replica_set.yaml
+replicaset.apps/submit-replica-set created
+root@DESKTOP-Q1VPUEC:submit# kubectl get pods
+NAME                       READY   STATUS    RESTARTS   AGE
+submit-pod                 1/1     Running   0          68s
+submit-repl-ctrl-bdtbw     1/1     Running   0          14s
+submit-repl-ctrl-glrhw     1/1     Running   0          14s
+submit-replica-set-5kcx2   1/1     Running   0          3s
+submit-replica-set-dlntb   1/1     Running   0          3s
+root@DESKTOP-Q1VPUEC:submit# kubectl apply -f deployement.yaml
+deployment.apps/submit-deploy created
+root@DESKTOP-Q1VPUEC:submit# kubectl get pods
+NAME                             READY   STATUS    RESTARTS   AGE
+submit-deploy-5764fb57df-dcghf   1/1     Running   0          3s
+submit-deploy-5764fb57df-j79sr   1/1     Running   0          3s
+submit-pod                       1/1     Running   0          78s
+submit-repl-ctrl-bdtbw           1/1     Running   0          24s
+submit-repl-ctrl-glrhw           1/1     Running   0          24s
+submit-replica-set-5kcx2         1/1     Running   0          13s
+submit-replica-set-dlntb         1/1     Running   0          13s
+
+-------------------------------------------------------------------------------------------------------------------
+
+root@DESKTOP-Q1VPUEC:submit# kubectl describe pod  submit-pod
+Name:             submit-pod
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             worker-1/172.31.87.50
+Start Time:       Thu, 08 Feb 2024 20:26:27 +0530
+Labels:           name=submit
+Annotations:      cni.projectcalico.org/containerID: c016a540870e443045fcc66d4ba5b400dbe318b1d893891e1654bccc8549e8e2
+                  cni.projectcalico.org/podIP: 10.111.158.78/32
+                  cni.projectcalico.org/podIPs: 10.111.158.78/32
+Status:           Running
+IP:               10.111.158.78
+IPs:
+  IP:  10.111.158.78
+Containers:
+  submit:
+    Container ID:   containerd://d81b99e12df773766e62a5845e92e478bb7978406d76092dfb17965470f0811f
+    Image:          kamranshaikh111/submit:v1
+    Image ID:       docker.io/kamranshaikh111/dashboard@sha256:89cd011440d5720e2317eece6af574556f7969bc63b5c992b14bb5a771259817
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Thu, 08 Feb 2024 20:26:28 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-s5lqs (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  kube-api-access-s5lqs:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  14m   default-scheduler  Successfully assigned default/submit-pod to worker-1
+  Normal  Pulling    14m   kubelet            Pulling image "kamranshaikh111/submit:v1"
+  Normal  Pulled     14m   kubelet            Successfully pulled image "kamranshaikh111/submit:v1" in 127ms (127ms including waiting)
+  Normal  Created    14m   kubelet            Created container submit
+  Normal  Started    14m   kubelet            Started container submit
+root@DESKTOP-Q1VPUEC:submit# kubectl get pods
+NAME                             READY   STATUS    RESTARTS   AGE
+submit-deploy-5764fb57df-dcghf   1/1     Running   0          3s
+submit-deploy-5764fb57df-j79sr   1/1     Running   0          3s
+submit-repl-ctrl-bdtbw           1/1     Running   0          24s
+submit-repl-ctrl-glrhw           1/1     Running   0          24s
+submit-replica-set-5kcx2         1/1     Running   0          13s
+submit-replica-set-dlntb         1/1     Running   0          13s
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+root@DESKTOP-Q1VPUEC:submit# kubectl get replicationcontroller
+NAME                  DESIRED   CURRENT   READY   AGE
+submit-repl-ctrl      2         2         2       5m2s
+root@DESKTOP-Q1VPUEC:submit# kubectl describe  replicationcontroller submit-repl-ctrl
+Name:         submit-repl-ctrl
+Namespace:    default
+Selector:     app=submit
+Labels:       app=submit
+Annotations:  <none>
+Replicas:     2 current / 2 desired
+Pods Status:  2 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  app=submit
+  Containers:
+   submit:
+    Image:        kamranshaikh111/submit:v1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age    From                    Message
+  ----    ------            ----   ----                    -------
+  Normal  SuccessfulCreate  5m59s  replication-controller  Created pod: submit-repl-ctrl-bdtbw
+  Normal  SuccessfulCreate  5m59s  replication-controller  Created pod: submit-repl-ctrl-glrhw
+root@DESKTOP-Q1VPUEC:submit# kubectl delete  replicationcontroller submit-repl-ctrl
+replicationcontroller "submit-repl-ctrl" deleted
+root@DESKTOP-Q1VPUEC:submit# kubectl get replicationcontroller
+No resources found in default namespace.
+
+-------------------------------------------------------------------------------------------------------------------
+
+root@DESKTOP-Q1VPUEC:submit#  kubectl get replicaset
+NAME                          DESIRED   CURRENT   READY   AGE
+submit-repl-ctrl-5764fb57df   2         2         2       109s
+root@DESKTOP-Q1VPUEC:submit# kubectl describe replicaset submit-repl-ctrl-5764fb57df
+Name:           submit-deploy-5764fb57df
+Namespace:      default
+Selector:       app=submit,pod-template-hash=5764fb57df
+Labels:         app=submit
+                pod-template-hash=5764fb57df
+Annotations:    deployment.kubernetes.io/desired-replicas: 2
+                deployment.kubernetes.io/max-replicas: 3
+                deployment.kubernetes.io/revision: 1
+Controlled By:  Deployment/submit-deploy
+Replicas:       2 current / 2 desired
+Pods Status:    2 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  app=submit
+           pod-template-hash=5764fb57df
+  Containers:
+   submit-pod:
+    Image:        kamranshaikh111/submit:v1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Events:
+  Type    Reason            Age   From                   Message
+  ----    ------            ----  ----                   -------
+  Normal  SuccessfulCreate  47s   replicaset-controller  Created pod: submit-deploy-5764fb57df-mrdhb
+  Normal  SuccessfulCreate  47s   replicaset-controller  Created pod: submit-deploy-5764fb57df-2l97m
+root@DESKTOP-Q1VPUEC:submit# kubectl delete replicationcontroller submit-repl-ctrl-5764fb57df
+replicationcontroller "submit-repl-ctrl-5764fb57df" deleted
+root@DESKTOP-Q1VPUEC:submit# kubectl get replicationcontroller
+No resources found in default namespace.
+
+-------------------------------------------------------------------------------------------------------------------
+
+root@DESKTOP-Q1VPUEC:submit# kubectl get deployment
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+submit-deploy   2/2     2            2           16m
+root@DESKTOP-Q1VPUEC:submit# kubectl get deployment
+NAME            READY   UP-TO-DATE   AVAILABLE   AGE
+submit-deploy   2/2     2            2           16m
+root@DESKTOP-Q1VPUEC:submit# kubectl describe deployment submit-deploy
+Name:                   submit-deploy
+Namespace:              default
+CreationTimestamp:      Thu, 08 Feb 2024 20:27:42 +0530
+Labels:                 app=submit
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               app=submit
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  25% max unavailable, 25% max surge
+Pod Template:
+  Labels:  app=submit
+  Containers:
+   submit-pod:
+    Image:        kamranshaikh111/submit:v1
+    Port:         80/TCP
+    Host Port:    0/TCP
+    Environment:  <none>
+    Mounts:       <none>
+  Volumes:        <none>
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   submit-deploy-5764fb57df (2/2 replicas created)
+Events:
+  Type    Reason             Age                From                   Message
+  ----    ------             ----               ----                   -------
+  Normal  ScalingReplicaSet  13m (x3 over 17m)  deployment-controller  Scaled up replica set submit-deploy-5764fb57df to 2
+root@DESKTOP-Q1VPUEC:submit# kubectl get deployment
+No resources found in default namespace.
+
+-------------------------------------------------------------------------------------------------------------------
